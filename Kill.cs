@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using CounterStrikeSharp.API.Core;
+using CounterStrikeSharp.API.Modules.Commands;
 
 namespace Preach.CS2.Plugins.Kill;
 
@@ -14,20 +15,26 @@ public class Kill : BasePlugin, IPluginConfig<KillConfig>
     public override void Load(bool hotReload)
     {
         AddCommand("suicide", "Kill yourself", (ply, info) => {
-            if(ply == null || !ply.IsValid || !ply.PawnIsAlive || !ply.PlayerPawn.IsValid)
-                return;
-
-            if(!Config.ToggleCommand)
-            {
-                ply.PrintToChat("[Kill] Command is disabled");
-                return;
-            }
-
-            ply.PlayerPawn.Value.CommitSuicide(true, false);
+            SuicideHandler(ply, info);
+        });
+        AddCommand("kill", "Kill yourself", (ply, info) => {
+            SuicideHandler(ply, info);
         });
 
     }
 
+    private void SuicideHandler(CCSPlayerController ply, CommandInfo info) {
+        if (ply == null || !ply.IsValid || !ply.PawnIsAlive || !ply.PlayerPawn.IsValid)
+            return;
+
+        if (!Config.ToggleCommand)
+        {
+            ply.PrintToChat("[Kill] Command is disabled");
+            return;
+        }
+
+        ply.PlayerPawn.Value.CommitSuicide(true, false);
+    }
     public void OnConfigParsed(KillConfig config)
     {
         Config = config;
